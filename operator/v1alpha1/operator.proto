@@ -26,7 +26,9 @@ package istio.operator.v1alpha1;
 option go_package="istio.io/api/operator/v1alpha1";
 
 import "google/protobuf/any.proto";
-import "k8s.io/apimachinery/pkg/apis/meta/v1/generated.proto";
+import "k8s.io/api/autoscaling/v1/generated.proto";
+import "k8s.io/api/policy/v1beta1/generated.proto";
+import "k8s.io/api/apps/v1/generated.proto";
 import "k8s.io/api/core/v1/generated.proto";
 import "gogoproto/gogo.proto";
 
@@ -245,13 +247,13 @@ message GatewaySpec {
 message KubernetesResourcesSpec {
     // k8s affinity.
     // [https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity)
-    Affinity affinity = 1;
+    k8s.io.api.core.v1.Affinity affinity = 1;
     // Deployment environment variables.
     // [https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/)
-    repeated EnvVar env = 2;
+    repeated k8s.io.api.core.v1.EnvVar env = 2;
     // k8s HorizontalPodAutoscaler settings.
     // [https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
-    HorizontalPodAutoscalerSpec hpa_spec = 3;
+    k8s.io.api.autoscaling.v1.HorizontalPodAutoscalerSpec hpa_spec = 3;
     // k8s imagePullPolicy.
     // [https://kubernetes.io/docs/concepts/containers/images/](https://kubernetes.io/docs/concepts/containers/images/)
     string image_pull_policy = 4;
@@ -260,7 +262,7 @@ message KubernetesResourcesSpec {
     map<string, string> node_selector = 5;
     // k8s PodDisruptionBudget settings.
     // [https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#how-disruption-budgets-work](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#how-disruption-budgets-work)
-    PodDisruptionBudgetSpec pod_disruption_budget = 6;
+    k8s.io.api.policy.v1beta1.PodDisruptionBudgetSpec pod_disruption_budget = 6;
     // k8s pod annotations.
     // [https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/)
     map<string, string> pod_annotations = 7;
@@ -270,28 +272,28 @@ message KubernetesResourcesSpec {
     // k8s readinessProbe settings.
     // [https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/)
     // k8s.io.api.core.v1.Probe readiness_probe = 9;
-    ReadinessProbe readiness_probe = 9;
+    k8s.io.api.core.v1.Probe readiness_probe = 9;
     // k8s Deployment replicas setting.
     // [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
     uint32 replica_count = 10;
     // k8s resources settings.
     // [https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container)
-    Resources resources = 11;
+    k8s.io.api.core.v1.ResourceRequirements resources = 11;
     // k8s Service settings.
     // [https://kubernetes.io/docs/concepts/services-networking/service/](https://kubernetes.io/docs/concepts/services-networking/service/)
-    ServiceSpec service = 12;
+    k8s.io.api.core.v1.ServiceSpec service = 12;
     // k8s deployment strategy.
     // [https://kubernetes.io/docs/concepts/workloads/controllers/deployment/](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
-    DeploymentStrategy strategy = 13;
+    k8s.io.api.apps.v1.DeploymentStrategy strategy = 13;
     // k8s toleration
     // [https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/](https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/)
-    repeated Toleration tolerations = 14;
+    repeated k8s.io.api.core.v1.Toleration tolerations = 14;
     // k8s service annotations.
     // [https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/)
     map<string, string> service_annotations = 15;
     // k8s pod security context
     // [https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod)
-    PodSecurityContext securityContext = 16;
+    k8s.io.api.core.v1.PodSecurityContext securityContext = 16;
     // k8s volume
     // [https://kubernetes.io/docs/concepts/storage/volumes/](https://kubernetes.io/docs/concepts/storage/volumes/)
     // Volumes defines the collection of Volume to inject into the pod.
@@ -329,326 +331,6 @@ message K8sObjectOverlay {
 
     // List of patches to apply to resource.
     repeated PathValue patches = 4;
-}
-
-
-// See k8s.io.api.core.v1.Affinity.
-message Affinity {
-    NodeAffinity nodeAffinity = 1;
-    PodAffinity podAffinity = 2;
-    PodAntiAffinity podAntiAffinity = 3;
-}
-
-// See k8s.io.api.core.v1.ConfigMapKeySelector.
-message ConfigMapKeySelector {
-    LocalObjectReference localObjectReference = 1;
-    string key = 2;
-    bool optional = 3;
-}
-
-// See k8s.io.api.core.v1.ClientIPConfig.
-message ClientIPConfig {
-    int32 timeoutSeconds = 1;
-}
-
-// See k8s.io.api.autoscaling.v2beta2.CrossVersionObjectReference.
-message CrossVersionObjectReference {
-    string kind = 1;
-    string name = 2;
-    string apiVersion = 3;
-}
-
-// See k8s.io.api.apps.v1.DeploymentStrategy.
-message DeploymentStrategy {
-    string type = 1;
-    RollingUpdateDeployment rollingUpdate = 2;
-}
-
-// See k8s.io.api.core.v1.EnvVar.
-message EnvVar {
-    string name = 1;
-    string value = 2;
-    EnvVarSource valueFrom = 3;
-}
-
-// See k8s.io.api.core.v1.EnvVarSource.
-message EnvVarSource {
-    ObjectFieldSelector fieldRef = 1;
-    ResourceFieldSelector resourceFieldRef = 2;
-    ConfigMapKeySelector configMapKeyRef = 3;
-    SecretKeySelector secretKeyRef = 4;
-}
-
-// See k8s.io.api.core.v1.ExecAction.
-message ExecAction {
-    repeated string command = 1;
-}
-
-// See k8s.io.api.autoscaling.v2beta2.CrossVersionObjectReference.
-message ExternalMetricSource {
-    string metricName = 1;
-    k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector metricSelector = 2;
-    TypeIntOrStringForPB targetValue = 3;
-    TypeIntOrStringForPB targetAverageValue = 4;
-}
-
-// See k8s.io.api.core.v1.HTTPGetAction.
-message HTTPGetAction {
-    string path = 1;
-    TypeIntOrStringForPB port = 2;
-    string host = 3;
-    string scheme = 4;
-    repeated HTTPHeader httpHeaders = 5;
-}
-
-// See k8s.io.api.core.v1.HTTPHeader.
-message HTTPHeader {
-    string name = 1;
-    string value = 2;
-}
-
-// See k8s.io.api.autoscaling.v2beta1.HorizontalPodAutoscalerSpec.
-message HorizontalPodAutoscalerSpec {
-    CrossVersionObjectReference scaleTargetRef = 1;
-    int32 minReplicas = 2;
-    int32 maxReplicas = 3;
-    repeated MetricSpec metrics = 4;
-}
-
-// See k8s.io.api.core.v1.LocalObjectReference.
-message LocalObjectReference {
-    string name = 1;
-}
-
-// See k8s.io.autoscaling.v2beta1.MetricSpec.
-message MetricSpec {
-    string type = 1;
-    ObjectMetricSource object = 2;
-    PodsMetricSource pods = 3;
-    ResourceMetricSource resource = 4;
-    ExternalMetricSource external = 5;
-}
-
-// See k8s.io.api.core.v1.NodeAffinity.
-message NodeAffinity {
-    NodeSelector requiredDuringSchedulingIgnoredDuringExecution = 1;
-    repeated PreferredSchedulingTerm preferredDuringSchedulingIgnoredDuringExecution = 2;
-}
-
-// See k8s.io.api.core.v1.NodeSelector.
-message NodeSelector {
-    repeated NodeSelectorTerm nodeSelectorTerms = 1;
-}
-
-// See k8s.io.api.core.v1.NodeSelectorTerm.
-message NodeSelectorTerm {
-    repeated NodeSelectorRequirement matchExpressions = 1;
-    repeated NodeSelectorRequirement matchFields = 2;
-}
-
-// See k8s.io.api.core.v1.NodeSelectorRequirement.
-message NodeSelectorRequirement {
-    string key = 1;
-    string operator = 2;
-    repeated string values = 3;
-}
-
-// See k8s.io.api.core.v1.ObjectFieldSelector.
-message ObjectFieldSelector {
-    string apiVersion = 1;
-    string fieldPath = 2;
-}
-
-// From k8s.io.apimachinery.pkg.apis.meta.v1.ObjectMeta.
-message ObjectMeta {
-    string name = 5;
-    string namespace = 6;
-}
-
-// See k8s.io.autoscaling.v2beta1.ObjectMetricSource.
-message ObjectMetricSource {
-    CrossVersionObjectReference target = 1;
-    string metricName = 2;
-    TypeIntOrStringForPB targetValue = 3;
-    k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector selector = 4;
-    TypeIntOrStringForPB averageValue = 5;
-}
-
-// See k8s.io.api.core.v1.PodAffinity.
-message PodAffinity {
-    repeated PodAffinityTerm requiredDuringSchedulingIgnoredDuringExecution = 1;
-    repeated WeightedPodAffinityTerm preferredDuringSchedulingIgnoredDuringExecution = 2;
-}
-
-// See k8s.io.api.core.v1.PodAntiAffinity.
-message PodAntiAffinity {
-    repeated PodAffinityTerm requiredDuringSchedulingIgnoredDuringExecution = 1;
-    repeated WeightedPodAffinityTerm preferredDuringSchedulingIgnoredDuringExecution = 2;
-}
-
-// See k8s.io.api.core.v1.PodAntiAffinity.
-message PodAffinityTerm {
-    k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector labelSelector = 1;
-    repeated string namespaces = 2;
-    string topologyKey = 3;
-}
-
-// See k8s.io.api.policy.v1beta1.PodDisruptionBudget.
-message PodDisruptionBudgetSpec {
-    TypeIntOrStringForPB minAvailable = 1;
-    k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector selector = 2;
-    TypeIntOrStringForPB maxUnavailable = 3;
-}
-
-// See k8s.io.api.core.v1.PodsMetricSource.
-message PodsMetricSource {
-    string metricName = 1;
-    TypeIntOrStringForPB targetAverageValue = 2;
-    k8s.io.apimachinery.pkg.apis.meta.v1.LabelSelector selector = 3;
-}
-
-// See k8s.io.api.core.v1.PreferredSchedulingTerm.
-message PreferredSchedulingTerm {
-    int32 weight = 1;
-    NodeSelectorTerm preference = 2;
-}
-
-// See k8s.io.api.core.v1.ReadinessProbe.
-message ReadinessProbe {
-    ExecAction exec = 1;
-    HTTPGetAction httpGet = 2;
-    TCPSocketAction tcpSocket = 3;
-    int32 initialDelaySeconds = 4;
-    int32 timeoutSeconds = 5;
-    int32 periodSeconds = 6;
-    int32 successThreshold = 7;
-    int32 failureThreshold = 8;
-}
-
-// See k8s.io.api.core.v1..
-message ResourceFieldSelector {
-    string containerName = 1;
-    string resource = 2;
-    TypeIntOrStringForPB divisor = 3;
-}
-
-// See k8s.io.api.core.v1.ResourceMetricSource.
-message ResourceMetricSource {
-    string name = 1;
-    int32 targetAverageUtilization = 2;
-    TypeIntOrStringForPB targetAverageValue = 3;
-}
-
-// See k8s.io.api.core.v1.ResourceRequirements.
-message Resources {
-    map<string, string> limits = 1;
-    map<string, string> requests = 2;
-}
-
-// See k8s.io.api.apps.v1.RollingUpdateDeployment.
-message RollingUpdateDeployment {
-    TypeIntOrStringForPB maxUnavailable = 1;
-    TypeIntOrStringForPB maxSurge = 2;
-}
-
-// See k8s.io.api.core.v1.SecretKeySelector.
-message SecretKeySelector {
-    LocalObjectReference localObjectReference = 1;
-    string key = 2;
-    bool optional = 3;
-}
-
-// See k8s.io.api.core.v1.ServiceSpec.
-message ServiceSpec {
-    repeated ServicePort ports = 1;
-    map<string, string> selector = 2;
-    string clusterIP = 3;
-    string type = 4;
-    repeated string externalIPs = 5;
-    string sessionAffinity = 7;
-    string loadBalancerIP = 8;
-    repeated string loadBalancerSourceRanges = 9;
-    string externalName = 10;
-    string externalTrafficPolicy = 11;
-    int32 healthCheckNodePort = 12;
-    bool publishNotReadyAddresses = 13;
-    SessionAffinityConfig sessionAffinityConfig = 14;
-}
-
-// See k8s.io.api.core.v1..
-message ServicePort {
-    string name = 1;
-    string protocol = 2;
-    int32 port = 3;
-    TypeIntOrStringForPB targetPort = 4;
-    int32 nodePort = 5;
-}
-
-// See k8s.io.api.core.v1.SessionAffinityConfig.
-message SessionAffinityConfig {
-    ClientIPConfig clientIP = 1;
-}
-
-// See k8s.io.api.core.v1.TCPSocketAction.
-message TCPSocketAction {
-    TypeIntOrStringForPB port = 1;
-    string host = 2;
-}
-
-// See k8s.io.api.core.v1.Toleration.
-message Toleration {
-    string key = 1;
-    string operator = 2;
-    string value = 3;
-    string effect = 4;
-    int64 tolerationSeconds = 5;
-}
-
-// See k8s.io.api.core.v1.WeightedPodAffinityTerm.
-message WeightedPodAffinityTerm {
-    int32 weight = 1;
-    PodAffinityTerm podAffinityTerm = 2;
-}
-
-// See k8s.io.api.core.v1.PodSecurityContext.
-message PodSecurityContext {
-    SELinuxOptions seLinuxOptions = 1;
-    int64 runAsUser = 2;
-    bool runAsNonRoot = 3;
-    repeated int64 supplementalGroups = 4;
-    int64 fsGroup = 5;
-    int64 runAsGroup = 6;
-    repeated Sysctl sysctls = 7;
-    WindowsSecurityContextOptions windowsOptions = 8;
-    string fsGroupChangePolicy = 9;
-    SeccompProfile seccompProfile = 10;
-}
-
-// See k8s.io.api.core.v1.SELinuxOptions.
-message SELinuxOptions {
-    string user = 1;
-    string role = 2;
-    string type = 3;
-    string level = 4;
-}
-
-// See k8s.io.api.core.v1.Sysctl.
-message Sysctl {
-    string name = 1;
-    string value = 2;
-}
-
-// See k8s.io.api.core.v1.WindowsSecurityContextOptions.
-message WindowsSecurityContextOptions {
-    string gmsaCredentialSpecName = 1;
-    string gmsaCredentialSpec = 2;
-    string runAsUserName = 3;
-}
-
-// See k8s.io.api.core.v1.SeccompProfile.
-message SeccompProfile {
-    string type = 1;
-    string localhostProfile = 2;
 }
 
 // Synthetic type for generating Go structs.
